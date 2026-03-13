@@ -1,6 +1,10 @@
 MIT License
 
+<<<<<<< HEAD
 Copyright (c) 2026 harbors-jp
+=======
+Copyright (c) 2026 Harbors LLC
+>>>>>>> a611742 (Initial public site: index.html, README, LICENSE)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

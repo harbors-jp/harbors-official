@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Locker Info - Shibuya</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        #map { height: 700px; width: 100%; }
+        .filter { padding: 10px; background: #f0f0f0; display: flex; flex-direction: column; }
+        .filter label { margin-bottom: 5px; }
+        .ad { text-align: center; padding: 10px; background: #ddd; margin: 10px 0; }
+        .popup-content { max-width: 200px; }
+        .icon { font-size: 20px; margin-right: 5px; }
+        .green { color: green; }
+        .red { color: red; }
+        .blue { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Coin Locker Information - Shibuya (インバウンド向け多言語対応サンプル)</h1>
+    <p><strong>都市OS (Urban OS) について:</strong> 当社では、観光都市の「生活インフラ情報」を横断的に提供するプラットフォームを開発しています。Google Mapsではカバーしきれない、人手で集めた詳細情報（アクセシビリティ、リアルな使い勝手）を、地図ベースでわかりやすくお届け。インバウンド観光客向けに多言語対応し、快適な都市体験をサポートします。</p>
+    <p><strong>提供サービス例:</strong></p>
+    <ul>
+        <li><strong>コインロッカー情報</strong>: サイズ、料金、段差なし/屋根あり/スーツケース対応などの詳細。</li>
+        <li><strong>充電エリア</strong>: スマートフォン充電スポットの場所と利用条件。</li>
+        <li><strong>トイレ情報</strong>: 清潔度、アクセシビリティ、多機能トイレの有無。</li>
+        <li><strong>駐輪場/駐車場</strong>: 料金、セキュリティ、利用可能時間。</li>
+    </ul>
+    <p>これらの情報は、人手による横断調査で収集。差別化ポイントは、Google Mapsを超える「実用的詳細」と「使いやすいUI」です。</p>
+    <div class="filter">
+        <label><input type="checkbox" id="no-step" checked onchange="applyFilter()">段差なし (No Step)</label>
+        <label><input type="checkbox" id="roof" checked onchange="applyFilter()">屋根あり (With Roof)</label>
+        <label><input type="checkbox" id="suitcase" checked onchange="applyFilter()">スーツケース対応 (Suitcase OK)</label>
+        <label><input type="checkbox" id="station-inside" checked onchange="applyFilter()">駅構内不要 (No Station Inside)</label>
+    </div>
+    <div id="map"></div>
+    <div class="ad">広告スペース (Ad Space - Google AdSense)</div>
+    <footer style="text-align: center; padding: 20px; background: #f0f0f0; margin-top: 20px;">
+        <p><strong>会社情報:</strong> 合同会社 [会社名] | 代表: [あなたの名前] | 事業: 都市OSプラットフォームの開発・運営</p>
+        <p>お問い合わせ: [メールアドレス] | ウェブサイト: [URL]</p>
+        <p>© 2026 Harbors LLC. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 静的データ (Static Data)
+        const lockers = [
+            {
+                name: "Shibuya Station Locker A",
+                lat: 35.6580,
+                lng: 139.7016,
+                size: "Large",
+                price: "¥500/day",
+                noStep: true,
+                roof: true,
+                suitcase: true,
+                stationInside: false,
+                distance: "徒歩2分 (2 min walk)",
+                details: "段差なし、スーツケースOK。屋根あり。"
+            },
+            {
+                name: "Shibuya Station Locker B",
+                lat: 35.6590,
+                lng: 139.7020,
+                size: "Medium",
+                price: "¥300/day",
+                noStep: false,
+                roof: false,
+                suitcase: false,
+                stationInside: true,
+                distance: "徒歩5分 (5 min walk)",
+                details: "段差あり、駅構内進入必要。"
+            },
+            {
+                name: "Nearby Hotel Locker",
+                lat: 35.6575,
+                lng: 139.7000,
+                size: "Small",
+                price: "¥200/day",
+                noStep: true,
+                roof: true,
+                suitcase: true,
+                stationInside: false,
+                distance: "徒歩1分 (1 min walk)",
+                details: "段差なし、スーツケースOK。敷地外。"
+            },
+            {
+                name: "Scramble Crossing Locker",
+                lat: 35.6595,
+                lng: 139.7005,
+                size: "Large",
+                price: "¥600/day",
+                noStep: true,
+                roof: false,
+                suitcase: true,
+                stationInside: false,
+                distance: "徒歩3分 (3 min walk)",
+                details: "段差なし、スーツケースOK。屋根なし。"
+            },
+            {
+                name: "Station East Exit Locker",
+                lat: 35.6585,
+                lng: 139.7025,
+                size: "Medium",
+                price: "¥400/day",
+                noStep: false,
+                roof: true,
+                suitcase: false,
+                stationInside: true,
+                distance: "徒歩4分 (4 min walk)",
+                details: "段差あり、屋根あり。駅構内。"
+            },
+            {
+                name: "Park Side Locker",
+                lat: 35.6570,
+                lng: 139.6995,
+                size: "Small",
+                price: "¥250/day",
+                noStep: true,
+                roof: true,
+                suitcase: true,
+                stationInside: false,
+                distance: "徒歩2分 (2 min walk)",
+                details: "段差なし、屋根あり、スーツケースOK。"
+            },
+            {
+                name: "Underground Locker",
+                lat: 35.6592,
+                lng: 139.7010,
+                size: "Large",
+                price: "¥700/day",
+                noStep: false,
+                roof: false,
+                suitcase: false,
+                stationInside: true,
+                distance: "徒歩6分 (6 min walk)",
+                details: "段差あり、屋根なし。地下進入必要。"
+            },
+            {
+                name: "Shopping Mall Locker",
+                lat: 35.6565,
+                lng: 139.6980,
+                size: "Medium",
+                price: "¥350/day",
+                noStep: true,
+                roof: false,
+                suitcase: true,
+                stationInside: false,
+                distance: "徒歩3分 (3 min walk)",
+                details: "段差なし、スーツケースOK。屋根なし。"
+            },
+            {
+                name: "Hotel Annex Locker",
+                lat: 35.6582,
+                lng: 139.6990,
+                size: "Small",
+                price: "¥300/day",
+                noStep: true,
+                roof: true,
+                suitcase: false,
+                stationInside: false,
+                distance: "徒歩1分 (1 min walk)",
+                details: "段差なし、屋根あり。スーツケース不可。"
+            },
+            {
+                name: "Station West Locker",
+                lat: 35.6598,
+                lng: 139.7030,
+                size: "Large",
+                price: "¥550/day",
+                noStep: false,
+                roof: true,
+                suitcase: true,
+                stationInside: true,
+                distance: "徒歩5分 (5 min walk)",
+                details: "段差あり、屋根あり、スーツケースOK。駅構内。"
+            }
+        ];
+
+        // 地図初期化 (Map Initialization)
+        const map = L.map('map').setView([35.6580, 139.7016], 16);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        let markers = [];
+
+        // マーカー追加 (Add Markers)
+        function addMarkers(data) {
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+            data.forEach(locker => {
+                // カスタムアイコン (Custom Icon)
+                let iconHtml = '<i class="fas fa-archive" style="color: gray; font-size: 20px;"></i>'; // デフォルト: ロッカーアイコン
+                if (locker.noStep) iconHtml = '<i class="fas fa-check-circle" style="color: green; font-size: 20px;"></i>'; // 段差なし: 緑チェック
+                if (locker.roof) iconHtml += '<i class="fas fa-umbrella" style="color: blue; font-size: 16px; margin-left: 5px;"></i>'; // 屋根あり: 青傘
+                if (locker.suitcase) iconHtml += '<i class="fas fa-suitcase" style="color: orange; font-size: 16px; margin-left: 5px;"></i>'; // スーツケース: オレンジスーツケース
+
+                const customIcon = L.divIcon({
+                    html: iconHtml,
+                    className: 'custom-marker',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 30]
+                });
+
+                const marker = L.marker([locker.lat, locker.lng], { icon: customIcon }).addTo(map);
+                const popupContent = `
+                    <div class="popup-content">
+                        <h3>${locker.name}</h3>
+                        <p>サイズ: ${locker.size} | 料金: ${locker.price}</p>
+                        <p>移動距離: ${locker.distance}</p>
+                        <p>
+                            <i class="fas fa-walking ${locker.noStep ? 'green' : 'red'}"></i> 段差なし: ${locker.noStep ? 'Yes' : 'No'}<br>
+                            <i class="fas fa-umbrella ${locker.roof ? 'blue' : 'red'}"></i> 屋根あり: ${locker.roof ? 'Yes' : 'No'}<br>
+                            <i class="fas fa-suitcase ${locker.suitcase ? 'green' : 'red'}"></i> スーツケース: ${locker.suitcase ? 'Yes' : 'No'}<br>
+                            <i class="fas fa-building ${!locker.stationInside ? 'green' : 'red'}"></i> 駅構内不要: ${!locker.stationInside ? 'Yes' : 'No'}
+                        </p>
+                        <p>${locker.details}</p>
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
+                markers.push(marker);
+            });
+        }
+
+        addMarkers(lockers);
+
+        // フィルタ適用 (Apply Filter)
+        function applyFilter() {
+            const noStep = document.getElementById('no-step').checked;
+            const roof = document.getElementById('roof').checked;
+            const suitcase = document.getElementById('suitcase').checked;
+            const stationInside = document.getElementById('station-inside').checked;
+
+            const filtered = lockers.filter(locker => {
+                return (!noStep || locker.noStep) &&
+                       (!roof || locker.roof) &&
+                       (!suitcase || locker.suitcase) &&
+                       (!stationInside || !locker.stationInside);
+            });
+            addMarkers(filtered);
+        }
+    </script>
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\koga\OneDrive\ドキュメント\2026-設立\ui01\index.html
