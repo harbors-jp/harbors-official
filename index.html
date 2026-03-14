@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coin Locker Info - Shibuya</title>
+    <title>Coin Locker Information - Shibuya</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -21,32 +21,89 @@
     </style>
 </head>
 <body>
-    <h1>Coin Locker Information - Shibuya (インバウンド向け多言語対応サンプル)</h1>
-    <p><strong>都市OS (Urban OS) について:</strong> 当社では、観光都市の「生活インフラ情報」を横断的に提供するプラットフォームを開発しています。Google Mapsではカバーしきれない、人手で集めた詳細情報（アクセシビリティ、リアルな使い勝手）を、地図ベースでわかりやすくお届け。インバウンド観光客向けに多言語対応し、快適な都市体験をサポートします。</p>
-    <p><strong>提供サービス例:</strong></p>
-    <ul>
-        <li><strong>コインロッカー情報</strong>: サイズ、料金、段差なし/屋根あり/スーツケース対応などの詳細。</li>
-        <li><strong>充電エリア</strong>: スマートフォン充電スポットの場所と利用条件。</li>
-        <li><strong>トイレ情報</strong>: 清潔度、アクセシビリティ、多機能トイレの有無。</li>
-        <li><strong>駐輪場/駐車場</strong>: 料金、セキュリティ、利用可能時間。</li>
-    </ul>
-    <p>これらの情報は、人手による横断調査で収集。差別化ポイントは、Google Mapsを超える「実用的詳細」と「使いやすいUI」です。</p>
-    <div class="filter">
-        <label><input type="checkbox" id="no-step" checked onchange="applyFilter()">段差なし (No Step)</label>
-        <label><input type="checkbox" id="roof" checked onchange="applyFilter()">屋根あり (With Roof)</label>
-        <label><input type="checkbox" id="suitcase" checked onchange="applyFilter()">スーツケース対応 (Suitcase OK)</label>
-        <label><input type="checkbox" id="station-inside" checked onchange="applyFilter()">駅構内不要 (No Station Inside)</label>
-    </div>
+    <h1></h1>
+    <p></p>
+    <p></p>
+    <ul></ul>
+    <p></p>
+    <div class="filter"></div>
     <div id="map"></div>
-    <div class="ad">広告スペース (Ad Space - Google AdSense)</div>
+    <div class="ad"></div>
     <footer style="text-align: center; padding: 20px; background: #f0f0f0; margin-top: 20px;">
         <p><strong>会社情報:</strong> 合同会社 [会社名] | 代表: [あなたの名前] | 事業: 都市OSプラットフォームの開発・運営</p>
         <p>お問い合わせ: [メールアドレス] | ウェブサイト: [URL]</p>
-        <p>© 2026 Harbors LLC. All rights reserved.</p>
+        <p></p>
     </footer>
 
     <script>
-        // 静的データ (Static Data)
+        // Language detection and translations
+        const translations = {
+            ja: {
+                title: "コインロッカー情報 - 渋谷 (インバウンド向け多言語対応サンプル)",
+                intro: "都市OS (Urban OS) について: 当社では、観光都市の「生活インフラ情報」を横断的に提供するプラットフォームを開発しています。Google Mapsでは扱わない、人手で横断的に集めた詳細情報（充電エリア、トイレ情報、駐輪場、駐車場など）を、地図ベースでわかりやすくお届け。インバウンド観光客向けに多言語対応し、快適な都市体験をサポートします。",
+                services: "提供サービス例:",
+                servicesList: [
+                    "コインロッカー情報: サイズ、料金、段差なし/屋根あり/スーツケース対応などの詳細。",
+                    "充電エリア: スマートフォン充電スポットの場所と利用条件。",
+                    "トイレ情報: 清潔度、アクセシビリティ、多機能トイレの有無。",
+                    "駐輪場/駐車場: 料金、セキュリティ、利用可能時間。"
+                ],
+                diff: "これらの情報は、人手による横断調査で収集。差別化ポイントは、Google Mapsを超える「実用的詳細」と「使いやすいUI」です。",
+                filterTitle: "フィルタ",
+                noStep: "段差なし (No Step)",
+                roof: "屋根あり (With Roof)",
+                suitcase: "スーツケース対応 (Suitcase OK)",
+                stationInside: "駅構内不要 (No Station Inside)",
+                apply: "フィルタ適用 (Apply Filter)",
+                ad: "広告スペース (Ad Space - Google AdSense)",
+                copyright: "© 2026 Harbors LLC. All rights reserved."
+            },
+            en: {
+                title: "Coin Locker Information - Shibuya (Multilingual Sample for Inbound Tourism)",
+                intro: "About Urban OS: We develop a platform that provides cross-sectional 'urban infrastructure information' for tourist cities. We deliver detailed information collected manually (charging areas, toilet info, bike parking, parking lots, etc.) that Google Maps doesn't cover, in an easy-to-understand map-based format. We support inbound tourists with multilingual features for a comfortable urban experience.",
+                services: "Example Services:",
+                servicesList: [
+                    "Coin Locker Info: Details like size, price, no steps, with roof, suitcase compatible.",
+                    "Charging Areas: Locations and conditions for smartphone charging spots.",
+                    "Toilet Information: Cleanliness, accessibility, availability of multi-functional toilets.",
+                    "Bike Parking/Parking Lots: Fees, security, available hours."
+                ],
+                diff: "This information is collected through manual cross-sectional surveys. Differentiation points are 'practical details' and 'user-friendly UI' that surpass Google Maps.",
+                filterTitle: "Filters",
+                noStep: "No Step",
+                roof: "With Roof",
+                suitcase: "Suitcase Compatible",
+                stationInside: "No Station Inside Required",
+                apply: "Apply Filter",
+                ad: "Ad Space (Google AdSense)",
+                copyright: "© 2026 Harbors LLC. All rights reserved."
+            }
+        };
+
+        // Detect browser language (default to English if not ja)
+        const userLang = navigator.language.startsWith('ja') ? 'ja' : 'en';
+        const t = translations[userLang];
+
+        // Function to update page content
+        function updateLanguage() {
+            document.title = t.title;
+            document.querySelector('h1').textContent = t.title;
+            const ps = document.querySelectorAll('p');
+            ps[0].innerHTML = `<strong>${t.intro.split(':')[0]}:</strong>${t.intro.split(':')[1]}`;
+            ps[1].innerHTML = `<strong>${t.services}</strong>`;
+            const ul = document.querySelector('ul');
+            ul.innerHTML = t.servicesList.map(item => `<li><strong>${item.split(':')[0]}:</strong>${item.split(':')[1]}</li>`).join('');
+            ps[2].textContent = t.diff;
+            document.querySelector('.filter').innerHTML = `
+                <label><input type="checkbox" id="no-step" checked onchange="applyFilter()">${t.noStep}</label>
+                <label><input type="checkbox" id="roof" checked onchange="applyFilter()">${t.roof}</label>
+                <label><input type="checkbox" id="suitcase" checked onchange="applyFilter()">${t.suitcase}</label>
+                <label><input type="checkbox" id="station-inside" checked onchange="applyFilter()">${t.stationInside}</label>
+            `;
+            document.querySelector('.ad').textContent = t.ad;
+            document.querySelector('footer p:last-child').textContent = t.copyright;
+        }
+    </script>
         const lockers = [
             {
                 name: "Shibuya Station Locker A",
@@ -243,6 +300,9 @@
             });
             addMarkers(filtered);
         }
+
+        // Call updateLanguage on page load
+        updateLanguage();
     </script>
 </body>
 </html></content>
