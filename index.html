@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,35 +8,62 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
+        * { box-sizing: border-box; }
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        #map { height: 700px; width: 100%; }
-        .filter { padding: 10px; background: #f0f0f0; display: flex; flex-direction: column; }
-        .filter label { margin-bottom: 5px; }
-        .ad { text-align: center; padding: 10px; background: #ddd; margin: 10px 0; }
-        .popup-content { max-width: 200px; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 15px; }
+        h1 { margin-top: 20px; margin-bottom: 15px; }
+        p { line-height: 1.6; }
+        ul { margin: 10px 0; padding-left: 30px; }
+        #map { height: 700px; width: 100%; margin: 15px 0; border: 1px solid #ddd; border-radius: 4px; }
+        .filter { padding: 12px; background: #f0f0f0; display: flex; flex-direction: column; margin: 15px 0; border-radius: 4px; }
+        .filter label { margin-bottom: 8px; }
+        .ad { text-align: center; padding: 15px; background: #ddd; margin: 15px 0; border-radius: 4px; }
+        .top-bar { text-align: right; padding: 12px 15px; background: #f9f9f9; border-bottom: 1px solid #ddd; }
+        .top-bar label { margin-right: 8px; font-weight: 500; }
+        .top-bar select { padding: 6px 10px; font-size: 14px; cursor: pointer; border: 1px solid #ccc; border-radius: 3px; }
+        .popup-content { max-width: 280px; }
+        .popup-content h3 { margin: 0 0 10px 0; }
+        .popup-content p { margin: 5px 0; font-size: 13px; }
         .icon { font-size: 20px; margin-right: 5px; }
         .green { color: green; }
         .red { color: red; }
         .blue { color: blue; }
+        footer { clear: both; font-size: 13px; }
+        footer p { margin: 5px 0; }
+        @media (max-width: 768px) {
+            #map { height: 500px; }
+            .container { padding: 0 10px; }
+        }
     </style>
 </head>
 <body>
-    <h1></h1>
-    <p></p>
-    <p></p>
-    <ul></ul>
-    <p></p>
-    <div class="filter"></div>
-    <div id="map"></div>
-    <div class="ad"></div>
-    <footer style="text-align: center; padding: 20px; background: #f0f0f0; margin-top: 20px;">
-        <p><strong>会社情報:</strong> 合同会社 [会社名] | 代表: [あなたの名前] | 事業: 都市OSプラットフォームの開発・運営</p>
-        <p>お問い合わせ: [メールアドレス] | ウェブサイト: [URL]</p>
+    <div class="top-bar">
+        <label for="lang-select"><strong>Language:</strong> </label>
+        <select id="lang-select" onchange="changeLanguage()">
+            <option value="en" selected>English</option>
+            <option value="ja">日本語</option>
+        </select>
+    </div>
+
+    <div class="container">
+        <h1></h1>
         <p></p>
+        <p></p>
+        <ul></ul>
+        <p></p>
+        <div class="filter"></div>
+        <div id="map"></div>
+        <div class="ad"></div>
+    </div>
+
+    <footer style="text-align: center; padding: 20px; background: #f0f0f0; margin-top: 20px;">
+        <p><span id="footer-company"></span> <span id="footer-ceo"></span> | <span id="footer-business"></span></p>
+        <p><span id="footer-contact"></span></p>
+        <p id="footer-copyright"></p>
     </footer>
 
     <script>
-        // Language detection and translations
+        // Language translations
         const translations = {
             ja: {
                 title: "コインロッカー情報 - 渋谷 (インバウンド向け多言語対応サンプル)",
@@ -56,54 +83,39 @@
                 stationInside: "駅構内不要 (No Station Inside)",
                 apply: "フィルタ適用 (Apply Filter)",
                 ad: "広告スペース (Ad Space - Google AdSense)",
-                copyright: "© 2026 Harbors LLC. All rights reserved."
+                copyright: "© 2026 Harbors LLC. All rights reserved.",
+                footerCompany: "<strong>会社情報:</strong> 合同会社 [会社名]",
+                footerCeo: "代表: [あなたの名前]",
+                footerBusiness: "事業: 都市OSプラットフォームの開発・運営",
+                footerContact: "お問い合わせ: [メールアドレス] | ウェブサイト: [URL]"
             },
             en: {
                 title: "Coin Locker Information - Shibuya (Multilingual Sample for Inbound Tourism)",
-                intro: "About Urban OS: We develop a platform that provides cross-sectional 'urban infrastructure information' for tourist cities. We deliver detailed information collected manually (charging areas, toilet info, bike parking, parking lots, etc.) that Google Maps doesn't cover, in an easy-to-understand map-based format. We support inbound tourists with multilingual features for a comfortable urban experience.",
+                intro: "About Urban OS: We build a platform that provides comprehensive urban infrastructure information for tourist cities. Using on‑the‑ground surveys, we publish practical details—charging spots, toilets, bike parking, parking lots, and more—that go beyond standard map services, presented via a user‑friendly map interface.",
                 services: "Example Services:",
                 servicesList: [
-                    "Coin Locker Info: Details like size, price, no steps, with roof, suitcase compatible.",
+                    "Coin Locker Info: Details such as size, price, step‑free access, roof availability, and suitcase compatibility.",
                     "Charging Areas: Locations and conditions for smartphone charging spots.",
-                    "Toilet Information: Cleanliness, accessibility, availability of multi-functional toilets.",
-                    "Bike Parking/Parking Lots: Fees, security, available hours."
+                    "Toilet Information: Cleanliness, accessibility, and availability of multi‑functional toilets.",
+                    "Bike Parking/Parking Lots: Fees, security, and available hours."
                 ],
-                diff: "This information is collected through manual cross-sectional surveys. Differentiation points are 'practical details' and 'user-friendly UI' that surpass Google Maps.",
+                diff: "This information is collected through on‑the‑ground surveys. Our edge is delivering highly practical, granular details and a user‑friendly UI that complement standard map services.",
                 filterTitle: "Filters",
-                noStep: "No Step",
-                roof: "With Roof",
-                suitcase: "Suitcase Compatible",
-                stationInside: "No Station Inside Required",
+                noStep: "Step‑free access",
+                roof: "Covered (with roof)",
+                suitcase: "Suitcase‑friendly",
+                stationInside: "No station entry required",
                 apply: "Apply Filter",
                 ad: "Ad Space (Google AdSense)",
-                copyright: "© 2026 Harbors LLC. All rights reserved."
+                copyright: "© 2026 Harbors LLC. All rights reserved.",
+                footerCompany: "<strong>Company Info:</strong> Harbors LLC",
+                footerCeo: "Representative / CEO: [Your Name]",
+                footerBusiness: "Business: Development & Operation of the Urban OS platform",
+                footerContact: "Contact: [Email Address] | Website: [URL]"
             }
         };
 
-        // Detect browser language (default to English if not ja)
-        const userLang = navigator.language.startsWith('ja') ? 'ja' : 'en';
-        const t = translations[userLang];
-
-        // Function to update page content
-        function updateLanguage() {
-            document.title = t.title;
-            document.querySelector('h1').textContent = t.title;
-            const ps = document.querySelectorAll('p');
-            ps[0].innerHTML = `<strong>${t.intro.split(':')[0]}:</strong>${t.intro.split(':')[1]}`;
-            ps[1].innerHTML = `<strong>${t.services}</strong>`;
-            const ul = document.querySelector('ul');
-            ul.innerHTML = t.servicesList.map(item => `<li><strong>${item.split(':')[0]}:</strong>${item.split(':')[1]}</li>`).join('');
-            ps[2].textContent = t.diff;
-            document.querySelector('.filter').innerHTML = `
-                <label><input type="checkbox" id="no-step" checked onchange="applyFilter()">${t.noStep}</label>
-                <label><input type="checkbox" id="roof" checked onchange="applyFilter()">${t.roof}</label>
-                <label><input type="checkbox" id="suitcase" checked onchange="applyFilter()">${t.suitcase}</label>
-                <label><input type="checkbox" id="station-inside" checked onchange="applyFilter()">${t.stationInside}</label>
-            `;
-            document.querySelector('.ad').textContent = t.ad;
-            document.querySelector('footer p:last-child').textContent = t.copyright;
-        }
-    </script>
+        // Locker data
         const lockers = [
             {
                 name: "Shibuya Station Locker A",
@@ -237,24 +249,30 @@
             }
         ];
 
-        // 地図初期化 (Map Initialization)
-        const map = L.map('map').setView([35.6580, 139.7016], 16);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
+        // Global variables
+        let currentLang = 'en';
+        let t = translations[currentLang];
+        let map;
         let markers = [];
 
-        // マーカー追加 (Add Markers)
+        // Initialize map
+        function initMap() {
+            map = L.map('map').setView([35.6580, 139.7016], 16);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            addMarkers(lockers);
+        }
+
+        // Add markers to map
         function addMarkers(data) {
             markers.forEach(marker => map.removeLayer(marker));
             markers = [];
             data.forEach(locker => {
-                // カスタムアイコン (Custom Icon)
-                let iconHtml = '<i class="fas fa-archive" style="color: gray; font-size: 20px;"></i>'; // デフォルト: ロッカーアイコン
-                if (locker.noStep) iconHtml = '<i class="fas fa-check-circle" style="color: green; font-size: 20px;"></i>'; // 段差なし: 緑チェック
-                if (locker.roof) iconHtml += '<i class="fas fa-umbrella" style="color: blue; font-size: 16px; margin-left: 5px;"></i>'; // 屋根あり: 青傘
-                if (locker.suitcase) iconHtml += '<i class="fas fa-suitcase" style="color: orange; font-size: 16px; margin-left: 5px;"></i>'; // スーツケース: オレンジスーツケース
+                let iconHtml = '<i class="fas fa-archive" style="color: gray; font-size: 20px;"></i>';
+                if (locker.noStep) iconHtml = '<i class="fas fa-check-circle" style="color: green; font-size: 20px;"></i>';
+                if (locker.roof) iconHtml += '<i class="fas fa-umbrella" style="color: blue; font-size: 16px; margin-left: 5px;"></i>';
+                if (locker.suitcase) iconHtml += '<i class="fas fa-suitcase" style="color: orange; font-size: 16px; margin-left: 5px;"></i>';
 
                 const customIcon = L.divIcon({
                     html: iconHtml,
@@ -264,28 +282,47 @@
                 });
 
                 const marker = L.marker([locker.lat, locker.lng], { icon: customIcon }).addTo(map);
-                const popupContent = `
-                    <div class="popup-content">
-                        <h3>${locker.name}</h3>
-                        <p>サイズ: ${locker.size} | 料金: ${locker.price}</p>
-                        <p>移動距離: ${locker.distance}</p>
-                        <p>
-                            <i class="fas fa-walking ${locker.noStep ? 'green' : 'red'}"></i> 段差なし: ${locker.noStep ? 'Yes' : 'No'}<br>
-                            <i class="fas fa-umbrella ${locker.roof ? 'blue' : 'red'}"></i> 屋根あり: ${locker.roof ? 'Yes' : 'No'}<br>
-                            <i class="fas fa-suitcase ${locker.suitcase ? 'green' : 'red'}"></i> スーツケース: ${locker.suitcase ? 'Yes' : 'No'}<br>
-                            <i class="fas fa-building ${!locker.stationInside ? 'green' : 'red'}"></i> 駅構内不要: ${!locker.stationInside ? 'Yes' : 'No'}
-                        </p>
-                        <p>${locker.details}</p>
-                    </div>
-                `;
+                
+                // Generate popup content based on current language
+                let popupContent;
+                if (currentLang === 'ja') {
+                    popupContent = `
+                        <div class="popup-content">
+                            <h3>${locker.name}</h3>
+                            <p>サイズ: ${locker.size} | 料金: ${locker.price}</p>
+                            <p>移動距離: ${locker.distance}</p>
+                            <p>
+                                <i class="fas fa-walking ${locker.noStep ? 'green' : 'red'}"></i> 段差なし: ${locker.noStep ? 'はい' : 'いいえ'}<br>
+                                <i class="fas fa-umbrella ${locker.roof ? 'blue' : 'red'}"></i> 屋根あり: ${locker.roof ? 'はい' : 'いいえ'}<br>
+                                <i class="fas fa-suitcase ${locker.suitcase ? 'green' : 'red'}"></i> スーツケース: ${locker.suitcase ? 'はい' : 'いいえ'}<br>
+                                <i class="fas fa-building ${!locker.stationInside ? 'green' : 'red'}"></i> 駅構内不要: ${!locker.stationInside ? 'はい' : 'いいえ'}
+                            </p>
+                            <p>${locker.details}</p>
+                        </div>
+                    `;
+                } else {
+                    popupContent = `
+                        <div class="popup-content">
+                            <h3>${locker.name}</h3>
+                            <p>Size: ${locker.size} | Price: ${locker.price}</p>
+                            <p>Distance: ${locker.distance}</p>
+                            <p>
+                                <i class="fas fa-walking ${locker.noStep ? 'green' : 'red'}"></i> Step‑free access: ${locker.noStep ? 'Yes' : 'No'}<br>
+                                <i class="fas fa-umbrella ${locker.roof ? 'blue' : 'red'}"></i> Covered (roof): ${locker.roof ? 'Yes' : 'No'}<br>
+                                <i class="fas fa-suitcase ${locker.suitcase ? 'green' : 'red'}"></i> Suitcase‑friendly: ${locker.suitcase ? 'Yes' : 'No'}<br>
+                                <i class="fas fa-building ${!locker.stationInside ? 'green' : 'red'}"></i> Inside station: ${locker.stationInside ? 'Yes' : 'No'}
+                            </p>
+                            <p>${locker.details}</p>
+                        </div>
+                    `;
+                }
+                
                 marker.bindPopup(popupContent);
                 markers.push(marker);
             });
         }
 
-        addMarkers(lockers);
-
-        // フィルタ適用 (Apply Filter)
+        // Apply filter
         function applyFilter() {
             const noStep = document.getElementById('no-step').checked;
             const roof = document.getElementById('roof').checked;
@@ -301,9 +338,53 @@
             addMarkers(filtered);
         }
 
-        // Call updateLanguage on page load
-        updateLanguage();
+        // Change language
+        function changeLanguage() {
+            currentLang = document.getElementById('lang-select').value;
+            t = translations[currentLang];
+            updateLanguage();
+        }
+
+        // Update page content
+        function updateLanguage() {
+            document.title = t.title;
+            document.querySelector('h1').textContent = t.title;
+            const ps = document.querySelectorAll('p');
+            ps[0].innerHTML = `<strong>${t.intro.split(':')[0]}:</strong>${t.intro.split(':')[1]}`;
+            ps[1].innerHTML = `<strong>${t.services}</strong>`;
+            const ul = document.querySelector('ul');
+            ul.innerHTML = t.servicesList.map(item => {
+                const parts = item.split(':');
+                return `<li><strong>${parts[0]}:</strong>${parts.slice(1).join(':')}</li>`;
+            }).join('');
+            ps[2].textContent = t.diff;
+            document.querySelector('.filter').innerHTML = `
+                <label><input type="checkbox" id="no-step" checked onchange="applyFilter()">${t.noStep}</label>
+                <label><input type="checkbox" id="roof" checked onchange="applyFilter()">${t.roof}</label>
+                <label><input type="checkbox" id="suitcase" checked onchange="applyFilter()">${t.suitcase}</label>
+                <label><input type="checkbox" id="station-inside" checked onchange="applyFilter()">${t.stationInside}</label>
+            `;
+            document.querySelector('.ad').textContent = t.ad;
+            document.querySelector('footer p:last-child').textContent = t.copyright;
+            document.getElementById('lang-select').value = currentLang;
+            
+            // Update footer
+            document.getElementById('footer-company').innerHTML = t.footerCompany;
+            document.getElementById('footer-ceo').textContent = t.footerCeo;
+            document.getElementById('footer-business').textContent = t.footerBusiness;
+            document.getElementById('footer-contact').textContent = t.footerContact;
+            document.getElementById('footer-copyright').textContent = t.copyright;
+            
+            if (map) map.invalidateSize();
+            // Redraw markers with new language
+            applyFilter();
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            initMap();
+            updateLanguage();
+        });
     </script>
 </body>
-</html></content>
-<parameter name="filePath">c:\Users\koga\OneDrive\ドキュメント\2026-設立\ui01\index.html
+</html>
