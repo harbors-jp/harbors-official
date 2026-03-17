@@ -31,6 +31,8 @@
             margin: 0;
             padding: 0;
             background: linear-gradient(135deg, #f0f4f8 0%, #f8fafc 100%);
+            /* 読みやすさ向上のため基本フォントサイズをやや大きめに設定 */
+            font-size: 18px;
             color: var(--text);
         }
         
@@ -83,7 +85,9 @@
             padding: 24px;
             background: white;
             display: flex;
-            flex-direction: column;
+            flex-direction: row; /* 縦から横に変更 */
+            flex-wrap: wrap;    /* 画面が狭いときは折り返す */
+            gap: 20px;          /* 項目間の余白 */
             margin: 25px 0;
             border-radius: 12px;
             box-shadow: var(--shadow);
@@ -96,13 +100,15 @@
         }
         
         .filter label {
-            margin-bottom: 14px;
-            font-size: 1.05rem;
+            margin-bottom: 0; /* 下の余白を消す */
+            /* 少し大きめで可読性を確保 */
+            font-size: 1.125rem;
             font-weight: 500;
             color: var(--text);
             cursor: pointer;
             display: flex;
             align-items: center;
+            white-space: nowrap; /* 改行を防ぐ */
             transition: color 0.2s ease;
         }
         
@@ -158,12 +164,16 @@
         .ad {
             text-align: center;
             padding: 20px;
-            background: linear-gradient(135deg, var(--primary-light) 0%, var(--accent) 100%);
-            color: white;
+            background: #f1f5f9;
+            color: #1e3a8a;
             margin: 25px 0;
             border-radius: 12px;
             box-shadow: var(--shadow);
             font-weight: 500;
+            /* 広告ボックス内の文字を見やすく */
+            font-size: 1.0625rem;
+            /* 四方の薄い枠線でまとまりを出す */
+            border: 1px solid #d1d5db;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
@@ -366,8 +376,7 @@
                 suitcase: "スーツケース対応 (Suitcase OK)",
                 stationInside: "駅構内不要 (No Station Inside)",
                 apply: "フィルタ適用 (Apply Filter)",
-                ad: "広告スペース (Ad Space - Google AdSense)",
-                copyright: "© 2026 Harbors LLC. All rights reserved.",
+                ad: "【収益化モデル案】広告枠（Google AdSense）/ 周辺店舗への送客・クーポン連携 / 自治体向け統計データ提供",                copyright: "© 2026 Harbors LLC. All rights reserved.",
                 footerCompany: "<strong>会社情報:</strong> Harbors合同会社",
                 footerCeo: "代表: Hiroaki Koga",
                 footerBusiness: "事業: 都市OSプラットフォームの開発・運営",
@@ -390,7 +399,7 @@
                 suitcase: "Suitcase‑friendly",
                 stationInside: "No station entry required",
                 apply: "Apply Filter",
-                ad: "Ad Space (Google AdSense)",
+                ad: "[Monetization Model] Ad Space / Affiliate-based Store Referrals / Statistical Data Sales for Local Government",
                 copyright: "© 2026 Harbors LLC. All rights reserved.",
                 footerCompany: "<strong>Company Info:</strong> Harbors LLC",
                 footerCeo: "Representative / CEO: Hiroaki Koga",
@@ -643,10 +652,10 @@
             }).join('');
             ps[2].textContent = t.diff;
             document.querySelector('.filter').innerHTML = `
-                <label><input type="checkbox" id="no-step" checked onchange="applyFilter()">${t.noStep}</label>
-                <label><input type="checkbox" id="roof" checked onchange="applyFilter()">${t.roof}</label>
-                <label><input type="checkbox" id="suitcase" checked onchange="applyFilter()">${t.suitcase}</label>
-                <label><input type="checkbox" id="station-inside" checked onchange="applyFilter()">${t.stationInside}</label>
+                <label><input type="checkbox" id="no-step" onchange="applyFilter()">${t.noStep}</label>
+                <label><input type="checkbox" id="roof" onchange="applyFilter()">${t.roof}</label>
+                <label><input type="checkbox" id="suitcase" onchange="applyFilter()">${t.suitcase}</label>
+                <label><input type="checkbox" id="station-inside" onchange="applyFilter()">${t.stationInside}</label>
             `;
             document.querySelector('.ad').textContent = t.ad;
             document.querySelector('footer p:last-child').textContent = t.copyright;
