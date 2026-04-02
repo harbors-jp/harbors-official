@@ -339,20 +339,19 @@
         </select>
     </div>
 
-    <div class="container">
+    <main class="container">
         <h1></h1>
-        <p></p>
-        <p></p>
-        <ul></ul>
-        <p></p>
+        <p id="intro-text"></p>
+        <p id="services-title"></p>
+        <ul id="services-list"></ul>
+        <p id="diff-text"></p>
         <div class="filter"></div>
         <div id="map"></div>
         <div class="ad"></div>
-    </div>
+    </main>
 
     <footer style="text-align: center; padding: 32px 20px; margin-top: 40px;">
         <p><span id="footer-company"></span> <span id="footer-ceo"></span> | <span id="footer-business"></span></p>
-        <p><span id="footer-contact"></span></p>
         <p id="footer-copyright"></p>
     </footer>
 
@@ -361,7 +360,8 @@
         const translations = {
             ja: {
                 title: "コインロッカー情報 - 渋谷 (インバウンド向け多言語対応サンプル)",
-                intro: "都市OS (Urban OS) について: 当社では、観光都市の「生活インフラ情報」を横断的に提供するプラットフォームを開発しています。Google Mapsでは扱わない、人手で横断的に集めた詳細情報（充電エリア、トイレ情報、駐輪場、駐車場など）を、地図ベースでわかりやすくお届け。インバウンド観光客向けに多言語対応し、快適な都市体験をサポートします。",
+                introTitle: "都市OS (Urban OS) について",
+                introBody: "当社では、観光都市の「生活インフラ情報」を横断的に提供するプラットフォームを開発しています。Google Mapsでは扱わない、人手で横断的に集めた詳細情報（充電エリア、トイレ情報、駐輪場、駐車場など）を、地図ベースでわかりやすくお届け。インバウンド観光客向けに多言語対応し、快適な都市体験をサポートします。",
                 services: "提供サービス例:",
                 servicesList: [
                     "コインロッカー情報: サイズ、料金、段差なし/屋根あり/スーツケース対応などの詳細。",
@@ -378,13 +378,22 @@
                 apply: "フィルタ適用 (Apply Filter)",
                 ad: "【収益化モデル案】広告枠（Google AdSense）/ 周辺店舗への送客・クーポン連携 / 自治体向け統計データ提供",                copyright: "© 2026 Harbors LLC. All rights reserved.",
                 footerCompany: "<strong>会社情報:</strong> Harbors合同会社",
-                footerCeo: "代表: Hiroaki Koga",
-                footerBusiness: "事業: 都市OSプラットフォームの開発・運営",
-                footerContact: "お問い合わせ: [メールアドレス] | ウェブサイト: [URL]"
+                popupLabels: {
+                    size: "サイズ",
+                    price: "料金",
+                    distance: "移動距離",
+                    noStep: "段差なし",
+                    roof: "屋根あり",
+                    suitcase: "スーツケース",
+                    stationInside: "駅構内不要"
+                },
+                footerCeo: "",
+                footerBusiness: "事業: 都市OSプラットフォームの開発・運営"
             },
             en: {
                 title: "Coin Locker Information - Shibuya (Multilingual Sample for Inbound Tourism)",
-                intro: "About Urban OS: We build a platform that provides comprehensive urban infrastructure information for tourist cities. Using on‑the‑ground surveys, we publish practical details—charging spots, toilets, bike parking, parking lots, and more—that go beyond standard map services, presented via a user‑friendly map interface.",
+                introTitle: "About Urban OS",
+                introBody: "We build a platform that provides comprehensive urban infrastructure information for tourist cities. Using on‑the‑ground surveys, we publish practical details—charging spots, toilets, bike parking, parking lots, and more—that go beyond standard map services, presented via a user‑friendly map interface.",
                 services: "Example Services:",
                 servicesList: [
                     "Coin Locker Info: Details such as size, price, step‑free access, roof availability, and suitcase compatibility.",
@@ -402,9 +411,17 @@
                 ad: "[Monetization Model] Ad Space / Affiliate-based Store Referrals / Statistical Data Sales for Local Government",
                 copyright: "© 2026 Harbors LLC. All rights reserved.",
                 footerCompany: "<strong>Company Info:</strong> Harbors LLC",
-                footerCeo: "Representative / CEO: Hiroaki Koga",
-                footerBusiness: "Business: Development & Operation of the Urban OS platform",
-                footerContact: "Contact: [Email Address] | Website: [URL]"
+                popupLabels: {
+                    size: "Size",
+                    price: "Price",
+                    distance: "Distance",
+                    noStep: "Step‑free access",
+                    roof: "Covered (roof)",
+                    suitcase: "Suitcase‑friendly",
+                    stationInside: "No station entry required"
+                },
+                footerCeo: "",
+                footerBusiness: "Business: Development & Operation of the Urban OS platform"
             }
         };
 
@@ -576,39 +593,24 @@
 
                 const marker = L.marker([locker.lat, locker.lng], { icon: customIcon }).addTo(map);
                 
-                // Generate popup content based on current language
-                let popupContent;
-                if (currentLang === 'ja') {
-                    popupContent = `
-                        <div class="popup-content">
-                            <h3>${locker.name}</h3>
-                            <p>サイズ: ${locker.size} | 料金: ${locker.price}</p>
-                            <p>移動距離: ${locker.distance}</p>
-                            <p>
-                                <i class="fas fa-walking ${locker.noStep ? 'green' : 'red'}"></i> 段差なし: ${locker.noStep ? 'はい' : 'いいえ'}<br>
-                                <i class="fas fa-umbrella ${locker.roof ? 'blue' : 'red'}"></i> 屋根あり: ${locker.roof ? 'はい' : 'いいえ'}<br>
-                                <i class="fas fa-suitcase ${locker.suitcase ? 'green' : 'red'}"></i> スーツケース: ${locker.suitcase ? 'はい' : 'いいえ'}<br>
-                                <i class="fas fa-building ${!locker.stationInside ? 'green' : 'red'}"></i> 駅構内不要: ${!locker.stationInside ? 'はい' : 'いいえ'}
-                            </p>
-                            <p>${locker.details}</p>
-                        </div>
-                    `;
-                } else {
-                    popupContent = `
-                        <div class="popup-content">
-                            <h3>${locker.name}</h3>
-                            <p>Size: ${locker.size} | Price: ${locker.price}</p>
-                            <p>Distance: ${locker.distance}</p>
-                            <p>
-                                <i class="fas fa-walking ${locker.noStep ? 'green' : 'red'}"></i> Step‑free access: ${locker.noStep ? 'Yes' : 'No'}<br>
-                                <i class="fas fa-umbrella ${locker.roof ? 'blue' : 'red'}"></i> Covered (roof): ${locker.roof ? 'Yes' : 'No'}<br>
-                                <i class="fas fa-suitcase ${locker.suitcase ? 'green' : 'red'}"></i> Suitcase‑friendly: ${locker.suitcase ? 'Yes' : 'No'}<br>
-                                <i class="fas fa-building ${!locker.stationInside ? 'green' : 'red'}"></i> Inside station: ${locker.stationInside ? 'Yes' : 'No'}
-                            </p>
-                            <p>${locker.details}</p>
-                        </div>
-                    `;
-                }
+                const labels = t.popupLabels;
+                const yesNo = (val) => currentLang === 'ja' ? (val ? 'はい' : 'いいえ') : (val ? 'Yes' : 'No');
+                const stationInsideVal = currentLang === 'ja' ? (!locker.stationInside ? 'はい' : 'いいえ') : (locker.stationInside ? 'Yes' : 'No');
+
+                const popupContent = `
+                    <div class="popup-content">
+                        <h3>${locker.name}</h3>
+                        <p>${labels.size}: ${locker.size} | ${labels.price}: ${locker.price}</p>
+                        <p>${labels.distance}: ${locker.distance}</p>
+                        <p>
+                            <i class="fas fa-walking ${locker.noStep ? 'green' : 'red'}"></i> ${labels.noStep}: ${yesNo(locker.noStep)}<br>
+                            <i class="fas fa-umbrella ${locker.roof ? 'blue' : 'red'}"></i> ${labels.roof}: ${yesNo(locker.roof)}<br>
+                            <i class="fas fa-suitcase ${locker.suitcase ? 'green' : 'red'}"></i> ${labels.suitcase}: ${yesNo(locker.suitcase)}<br>
+                            <i class="fas fa-building ${!locker.stationInside ? 'green' : 'red'}"></i> ${labels.stationInside}: ${stationInsideVal}
+                        </p>
+                        <p>${locker.details}</p>
+                    </div>
+                `;
                 
                 marker.bindPopup(popupContent);
                 markers.push(marker);
@@ -642,15 +644,14 @@
         function updateLanguage() {
             document.title = t.title;
             document.querySelector('h1').textContent = t.title;
-            const ps = document.querySelectorAll('p');
-            ps[0].innerHTML = `<strong>${t.intro.split(':')[0]}:</strong>${t.intro.split(':')[1]}`;
-            ps[1].innerHTML = `<strong>${t.services}</strong>`;
-            const ul = document.querySelector('ul');
+            document.getElementById('intro-text').innerHTML = `<strong>${t.introTitle}:</strong> ${t.introBody}`;
+            document.getElementById('services-title').innerHTML = `<strong>${t.services}</strong>`;
+            const ul = document.getElementById('services-list');
             ul.innerHTML = t.servicesList.map(item => {
-                const parts = item.split(':');
-                return `<li><strong>${parts[0]}:</strong>${parts.slice(1).join(':')}</li>`;
+                const [label, ...desc] = item.split(':');
+                return `<li><strong>${label}:</strong>${desc.join(':')}</li>`;
             }).join('');
-            ps[2].textContent = t.diff;
+            document.getElementById('diff-text').textContent = t.diff;
             document.querySelector('.filter').innerHTML = `
                 <label><input type="checkbox" id="no-step" onchange="applyFilter()">${t.noStep}</label>
                 <label><input type="checkbox" id="roof" onchange="applyFilter()">${t.roof}</label>
@@ -665,7 +666,6 @@
             document.getElementById('footer-company').innerHTML = t.footerCompany;
             document.getElementById('footer-ceo').textContent = t.footerCeo;
             document.getElementById('footer-business').textContent = t.footerBusiness;
-            document.getElementById('footer-contact').textContent = t.footerContact;
             document.getElementById('footer-copyright').textContent = t.copyright;
             
             if (map) map.invalidateSize();
